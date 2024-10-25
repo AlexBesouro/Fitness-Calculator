@@ -1,0 +1,28 @@
+# Fitness calculator
+
+# 1. Body Mass Index (BMI) Calculator
+
+- Calculates BMI to determine which weight category the user falls into (underweight, normal weight, overweight,
+  obesity).
+- Total Daily Energy Expenditure (TDEE): takes into account the user's activity level and suggests how many calories
+  are needed to maintain, gain, or lose weight.
+
+# 2. Food Database
+
+- A collection of food and calorie content of food products
+
+# 3. Calorie Consumption Calculator
+
+- Functions that calculate daily caloric intake from food
+
+# 4. Exercise Database
+
+- A collection of exercises with calorie burn information for each individual exercise.
+
+# 5. Calorie Burning Functions
+
+- Functions that calculate the number of calories burned depending on the type, time and intensity of the exercise performed.
+
+# 6. User Profile
+
+- A profile where the user's information will be stored.
