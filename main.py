@@ -1,4 +1,3 @@
-import mysql.connector
 
 
 def body_mass_index(user_weight: float, user_height: float) -> str:
@@ -77,3 +76,7 @@ def calorie_consumption_calculator(food_type: str, food_mass: int, food_data: di
     """
     quantity_of_eaten_calories = food_mass * food_data[food_type]
     return quantity_of_eaten_calories
+
+
+
+
