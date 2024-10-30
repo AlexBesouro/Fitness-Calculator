@@ -1,36 +1,24 @@
 import psycopg2
-from config import config
+from psql_connetion import psql_connection
 
-def connect():
-    # Connect to the DB
-    connection = None
-    crsr = None
-    try:
-        params = config(filename="food_database.ini", section="postgresql")
-        print("Connecting to the postgreSQL database ...")
-        connection = psycopg2.connect(**params)
+def insert_values(food_name, food_calories):
+    connection, crsr = psql_connection("food_database.ini", "postgresql")
+    last_id_number = crsr.execute("SELECT max(food_id) FROM food_calories")
+    last_id_number = crsr.fetchall()[0][0]
+    insert_script = (f"INSERT INTO food_calories (food_id, food_name, food_calories)"
+                     f" VALUES (%s, %s, %s)")
+    inserted_values = (last_id_number + 1, food_name, food_calories)
 
-        # Create a cursor
-        crsr = connection.cursor()
+    crsr.execute(insert_script, inserted_values)
+    connection.commit()
 
-        #Insert values
-        insert_script = ("INSERT INTO food_calories (food_id, food_name, food_calories) VALUES (1, 'rice', 360)")
+    if crsr is not None:
+        crsr.close()
+    if connection is not None:
+        connection.close()
+        print("Database connection terminated.")
 
-        crsr.execute(insert_script)
-        connection.commit()
-
-    except(Exception, psycopg2.DatabaseError) as error:
-        print(error)
-    finally:
-        if crsr is not None:
-            crsr.close()
-        if connection is not None:
-            connection.close()
-            print("Database connection terminated.")
+insert_values("beef 5%", 140)
 
 
 
-
-
-if __name__ == "__main__":
-    connect()
