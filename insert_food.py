@@ -2,7 +2,7 @@ import psycopg2
 from psql_connetion import psql_connection
 
 def insert_values(food_name, food_calories):
-    connection, crsr = psql_connection("food_database.ini", "postgresql")
+    connection, crsr = psql_connection("database.ini", "postgresql")
     last_id_number = crsr.execute("SELECT max(food_id) FROM food_calories")
     last_id_number = crsr.fetchall()[0][0]
     insert_script = (f"INSERT INTO food_calories (food_id, food_name, food_calories)"

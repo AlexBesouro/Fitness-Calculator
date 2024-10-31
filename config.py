@@ -16,4 +16,4 @@ def config(filename, section):
 
     return db
 
-# print(config("food_database.ini", "postgresql"))
+# print(config("database.ini", "postgresql"))

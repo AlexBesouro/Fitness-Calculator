@@ -15,7 +15,7 @@ def psql_connection(filename, section):
 
     return connection, crsr
 
-# psql_connection("food_database.ini", "postgresql")
+# psql_connection("database.ini", "postgresql")
 
 if __name__ == "__main__":
-    psql_connection("food_database.ini", "postgresql")
+    psql_connection("database.ini", "postgresql")
