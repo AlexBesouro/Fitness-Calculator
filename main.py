@@ -1,3 +1,6 @@
+import psycopg2
+from psql_connetion import psql_connection
+from user_profile import User
 
 
 def body_mass_index(user_weight: float, user_height: float) -> str:
@@ -43,7 +46,6 @@ def total_daily_energy_expenditure(user_gender: str, user_weight: float, user_he
     :return: TDEE (float)
     """
 
-    basal_metabolic_rate = None
     if user_gender == "male":
         basal_metabolic_rate = 10 * user_weight + 6.25 * user_height - 5 * user_age + 5
     else:
@@ -78,5 +80,67 @@ def calorie_consumption_calculator(food_type: str, food_mass: int, food_data: di
     return quantity_of_eaten_calories
 
 
+def aerobic_exercise_calories_burning(user_weight: int, exercise_name: str, exercise_time: float,
+                                      exercise_intensity: int = 3) -> float:
+    """
+    Function to calculate burned calories after aerobic type of exercise
+    :param exercise_name: name of exercise (str)
+    :param exercise_time: exercise duration (float)
+    :param exercise_intensity: approximate level of intensity (default 3) (int)
+    :param user_weight: weight of user (int)
+    :return: number of calories (float)
+    """
+    result = None
+    connection, crsr = psql_connection("database.ini", "postgresql")
+    exercise_list = crsr.execute("SELECT exercise_name FROM exercises")
+    exercise_list = crsr.fetchall()
+    exercise_list = [exercise_name[0] for exercise_name in exercise_list]
 
 
+    if exercise_name in exercise_list:
+        exercise_met_average = crsr.execute(f"SELECT exercise_met_average FROM exercises "
+                                            f"WHERE exercise_name = '{exercise_name}'")
+
+        exercise_met_average = crsr.fetchall()[0][0]
+        # print(exercise_met_average)
+        result = (exercise_met_average * 3.5 * user_weight * exercise_time * (exercise_intensity / 3)) / 200
+    else:
+        print("Exercise not in db")
+
+    if crsr is not None:
+        crsr.close()
+    if connection is not None:
+        connection.close()
+        print("Database connection terminated.")
+
+
+    return result
+
+# print(aerobic_exercise_calories_burning(76, "jum", 60, 3))
+
+def add_new_user(first_name, last_name, gender, age, height, weight):
+    user = User(first_name, last_name, gender, age, height, weight)
+
+    connection, crsr = psql_connection("database.ini", "postgresql")
+    crsr.execute("SELECT max(user_id) FROM user_list")
+    last_id_number = crsr.fetchall()[0][0]
+    if last_id_number is None:
+        last_id_number = 0
+
+    insert_script = (f"INSERT INTO user_list (user_id, first_name, last_name, user_gender, user_age, "
+                     f"user_height, user_weight)"
+                     f" VALUES (%s, %s, %s, %s, %s, %s, %s)")
+    inserted_values = (last_id_number + 1, first_name, last_name, gender, age, height, weight)
+
+    crsr.execute(insert_script, inserted_values)
+    connection.commit()
+
+    if crsr is not None:
+        crsr.close()
+    if connection is not None:
+        connection.close()
+        print("Database connection terminated.")
+
+    return user
+
+print(repr(add_new_user("Aleks", "Zhukov","male", 28, 180, 85)))
