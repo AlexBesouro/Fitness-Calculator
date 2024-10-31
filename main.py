@@ -1,5 +1,7 @@
 import psycopg2
 from psql_connetion import psql_connection
+from user_profile import User
+
 
 def body_mass_index(user_weight: float, user_height: float) -> str:
     """
@@ -114,4 +116,31 @@ def aerobic_exercise_calories_burning(user_weight: int, exercise_name: str, exer
 
     return result
 
-print(aerobic_exercise_calories_burning(76, "jum", 60, 3))
+# print(aerobic_exercise_calories_burning(76, "jum", 60, 3))
+
+def add_new_user(first_name, last_name, gender, age, height, weight):
+    user = User(first_name, last_name, gender, age, height, weight)
+
+    connection, crsr = psql_connection("database.ini", "postgresql")
+    crsr.execute("SELECT max(user_id) FROM user_list")
+    last_id_number = crsr.fetchall()[0][0]
+    if last_id_number is None:
+        last_id_number = 0
+
+    insert_script = (f"INSERT INTO user_list (user_id, first_name, last_name, user_gender, user_age, "
+                     f"user_height, user_weight)"
+                     f" VALUES (%s, %s, %s, %s, %s, %s, %s)")
+    inserted_values = (last_id_number + 1, first_name, last_name, gender, age, height, weight)
+
+    crsr.execute(insert_script, inserted_values)
+    connection.commit()
+
+    if crsr is not None:
+        crsr.close()
+    if connection is not None:
+        connection.close()
+        print("Database connection terminated.")
+
+    return user
+
+print(repr(add_new_user("Aleks", "Zhukov","male", 28, 180, 85)))
