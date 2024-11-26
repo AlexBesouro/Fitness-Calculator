@@ -27,7 +27,8 @@ def calculate_burned_calories(user_id: int, exercise: schemas.Exercise, db: Sess
     burned_calories_query = models.BurnedCalories(exercise_name=exercise.exercise_name,
                                              burned_calories_number=burned_calories_number, user_id=user_id,
                                              exercise_time= exercise.exercise_time, exercise_met=exercise_met_query)
+
     db.add(burned_calories_query)
     db.commit()
-    db.refresh(burned_calories_query)  # RETURNING SQLALCHEMY METHOD
+    db.refresh(burned_calories_query)
     return {"message": burned_calories_number}

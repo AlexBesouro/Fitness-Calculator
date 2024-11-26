@@ -68,4 +68,9 @@ class BurnedCalories(Base):
 
 
 class Total(Base):
-    pass
+    __tablename__ = "total calories"
+    user_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"), primary_key=True, nullable=False)
+    total_calories_eaten = Column(String, nullable=False)
+    total_calories_burned = Column(Float, nullable=False)
+    daily_tdee = Column(Float, nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True), nullable=False, primary_key=True, server_default=text("CURRENT_DATE"))
