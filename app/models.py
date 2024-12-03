@@ -60,3 +60,12 @@ class BurnedCalories(Base):
     exercise_time = Column(Float, nullable=False)
     burned_calories_number = Column(Float, nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, primary_key=True, server_default=text("NOW()"))
+
+
+class DailyTotal(Base):
+    __tablename__ = "totals"
+    user_id = Column(Integer,ForeignKey("users.user_id", ondelete="CASCADE"), primary_key=True, nullable=False)
+    total_burned_calories_number = Column(Float, nullable=False)
+    total_eaten_calories_number = Column(Integer, nullable=False)
+    result_tdee = Column(Float, nullable=False)
+    eaten_calories_created_at = Column(TIMESTAMP(timezone=True), nullable=False, primary_key=True, server_default=text("CURRENT_DATE"))

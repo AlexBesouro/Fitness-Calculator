@@ -2,8 +2,9 @@ from typing import List
 from app.database import get_db
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, HTTPException
-from app import models, schemas
+from app import models, schemas, utils, oauth2
 from app.data_func import calculate_tdee, user_age, calculate_bmi
+
 
 # Create a router for operations with 'users' request
 router = APIRouter(prefix="/users", tags=["users"])
@@ -29,9 +30,14 @@ def find_user_by_id(user_id: int, db: Session = Depends(get_db)):
 @router.post("/", status_code=201, response_model=schemas.UserResponse)
 def create_user(user:schemas.UserCreate, db: Session = Depends(get_db)):
     user_query = db.query(models.User).filter(models.User.email == user.email).first()
+
     if user_query:
         raise HTTPException(status_code=409, detail=f"User with email: {user.email} already exist")
+
+    user.password = utils.hashing(user.password)
+
     new_user = models.User(**user.model_dump())
+
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
@@ -39,10 +45,14 @@ def create_user(user:schemas.UserCreate, db: Session = Depends(get_db)):
 
 
 # Request to create a data for user
-@router.post("/{user_id}", status_code=201, response_model=List[schemas.UserDataResponse])
-def create_data(user_id: int, user_data: schemas.UserData , db: Session = Depends(get_db)):
-    user_query = db.query(models.User).filter(models.User.user_id == user_id)
+@router.post("/data", status_code=201, response_model=List[schemas.UserDataResponse])
+def create_data(user_data: schemas.UserData, user_id: int = Depends(oauth2.get_current_user),
+                db: Session = Depends(get_db)):
+
+    # print(user_id)
+    user_query = db.query(models.User).filter(models.User.user_id == user_id.id)
     user = user_query.first()
+
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
@@ -53,7 +63,7 @@ def create_data(user_id: int, user_data: schemas.UserData , db: Session = Depend
 
     bmi_number = calculate_bmi(weight=user_data.user_weight, height=user_data.user_height)
 
-    data_insert = models.UserData(user_id= user_id, user_height= user_data.user_height,
+    data_insert = models.UserData(user_id= user_id.id, user_height= user_data.user_height,
                                   user_weight= user_data.user_weight,
                                   user_activity_level= user_data.user_activity_level,
                                   user_tdee_number= tdee_number,
@@ -62,6 +72,6 @@ def create_data(user_id: int, user_data: schemas.UserData , db: Session = Depend
 
     db.add(data_insert)
     db.commit()
-    query = db.query(models.UserData).filter(models.UserData.user_id == user_id).all()
+    query = db.query(models.UserData).filter(models.UserData.user_id == user_id.id).all()
     return query
 

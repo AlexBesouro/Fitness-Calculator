@@ -2,14 +2,15 @@ from typing import List, Optional
 from app.database import get_db
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, HTTPException
-from app import models, schemas
+from app import models, schemas, oauth2
 
 # Create a router
 router = APIRouter(prefix="/cc", tags=["calories consumption"])
 
 # Request to find all eaten food by user
-@router.get("/{user_id}", response_model=List[schemas.FoodList]) #
-def find_eaten_food(user_id: int, db: Session = Depends(get_db), search: Optional[str] = ""):
+@router.get("/", response_model=List[schemas.FoodList]) #
+def find_eaten_food(db: Session = Depends(get_db), search: Optional[str] = "",
+                    user_id: int = Depends(oauth2.get_current_user)):
 
     food_query = (
         db.query(
@@ -19,7 +20,7 @@ def find_eaten_food(user_id: int, db: Session = Depends(get_db), search: Optiona
             models.CaloriesConsumptions.eaten_calories_created_at,
             models.Food.food_name
         )
-        .filter(models.CaloriesConsumptions.user_id == user_id)
+        .filter(models.CaloriesConsumptions.user_id == user_id.id)
         .filter(models.Food.food_name.contains(search))
         .join(models.Food, models.Food.food_id == models.CaloriesConsumptions.eaten_food_id)
         .all()
@@ -29,10 +30,11 @@ def find_eaten_food(user_id: int, db: Session = Depends(get_db), search: Optiona
 
 
 # Request to calculate user's calories consumption
-@router.post("/{user_id}", response_model=schemas.FoodEatenResponse)
-def add_eaten_calories(user_id: int, food: schemas.FoodEaten, db: Session = Depends(get_db)):
+@router.post("/", response_model=schemas.FoodEatenResponse)
+def add_eaten_calories(food: schemas.FoodEaten, db: Session = Depends(get_db),
+                       user_id: int = Depends(oauth2.get_current_user)):
 
-    user_query = db.query(models.User).filter(models.User.user_id == user_id)
+    user_query = db.query(models.User).filter(models.User.user_id == user_id.id)
     user = user_query.first()
 
     if not user:
@@ -50,7 +52,7 @@ def add_eaten_calories(user_id: int, food: schemas.FoodEaten, db: Session = Depe
 
     eaten_calories_number = calories_100gr * (food.food_mass / 100)
 
-    eaten_food_query =  models.CaloriesConsumptions(user_id=user_id, eaten_food_id=food_id,
+    eaten_food_query =  models.CaloriesConsumptions(user_id=user_id.id, eaten_food_id=food_id,
                                                     eaten_food_mass=food.food_mass,
                                                     eaten_calories_number=eaten_calories_number)
 

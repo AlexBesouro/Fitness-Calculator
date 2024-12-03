@@ -1,6 +1,18 @@
 from datetime import datetime, date
+from typing import Optional
 from pydantic import BaseModel, EmailStr
 from typing_extensions import  Literal
+
+
+
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type : str
+
+class TokenData(BaseModel):
+    id: Optional[str]
 
 
 class UserCreate(BaseModel):
@@ -65,6 +77,11 @@ class ExerciseResponse(BaseModel):
     exercise_name: str
     exercise_met: float
 
-
+class Total(BaseModel):
+    user_id: int
+    total_burned_calories_number: float
+    total_eaten_calories_number: float
+    result_tdee: float
+    eaten_calories_created_at: datetime
 
 
