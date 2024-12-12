@@ -6,7 +6,7 @@ from app import models, schemas, oauth2
 from datetime import datetime
 from sqlalchemy import func
 
-date = datetime.today()
+date = datetime.today().date()
 
 
 
@@ -18,7 +18,7 @@ router = APIRouter(prefix="/total", tags=["total"])
 def daily_total(db: Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):
 
     total_eaten_calories_query = (db.query(func.sum(models.CaloriesConsumptions.eaten_calories_number))
-                            .filter(func.date(models.CaloriesConsumptions.eaten_calories_created_at) == '2024-12-04',
+                            .filter(func.date(models.CaloriesConsumptions.eaten_calories_created_at) == date,
                                     models.CaloriesConsumptions.user_id == user_id.id)
                             .group_by(func.date(models.CaloriesConsumptions.eaten_calories_created_at))).first()
 
@@ -28,7 +28,7 @@ def daily_total(db: Session = Depends(get_db), user_id: int = Depends(oauth2.get
         total_eaten_calories = total_eaten_calories_query[0]
 
     total_burned_calories_query = (db.query(func.sum(models.BurnedCalories.burned_calories_number))
-                            .filter(func.date(models.BurnedCalories.created_at) == '2024-12-02',
+                            .filter(func.date(models.BurnedCalories.created_at) == date,
                                     models.BurnedCalories.user_id == user_id.id)
                             .group_by(func.date(models.BurnedCalories.created_at))).first()
 

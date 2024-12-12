@@ -31,12 +31,12 @@ def verify_access_token(token: str, credentials_exception):
         token_data = schemas.TokenData(id=str(user_id))
     except JWTError:
         raise credentials_exception
-    print(token_data.id)
+    # print(token_data.id)
     return token_data
 
 def get_current_user(token: str = Depends(oauth2_scheme)): # , db: Session = Depends(get_db)
     credential_exception = HTTPException(status_code=401, detail="Could not validate credentials",
                                          headers={"WWW-Authenticate": "Bearer"})
 
-    print(token)
+    # print(token)
     return verify_access_token(token, credential_exception)
