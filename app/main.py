@@ -20,4 +20,4 @@ app.include_router(total.router)
 
 @app.get("/")
 async def root():
-    return  {"data": "hello"}
+    return  {"data": "Fitness Calculator"}
