@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
 import os
-load_dotenv(".env.py")
+load_dotenv(".env_example")
 
 database_hostname = os.getenv("DATABASE_HOSTNAME")
 database_password = os.getenv("DATABASE_PASSWORD")
@@ -23,6 +23,6 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int
 
     # class Config:
-    #     env_file = ".env.py"
+    #     env_file = ".env_example"
 
 settings = Settings()
