@@ -1,7 +1,7 @@
 from datetime import datetime, date
 from typing import Optional
-from pydantic import BaseModel, EmailStr
-from typing_extensions import  Literal
+from pydantic import BaseModel, EmailStr, Field
+from typing_extensions import Literal
 
 
 
@@ -25,6 +25,7 @@ class UserCreate(BaseModel):
 
 
 class UserResponse(BaseModel):
+    user_id: int
     email: EmailStr
     first_name: str
     last_name: str
@@ -33,9 +34,9 @@ class UserResponse(BaseModel):
     user_created_at: datetime
 
 class UserData(BaseModel):
-    user_height: int
-    user_weight: float
-    user_activity_level: int
+    user_height: int = Field(..., ge=50, le=250, description="Height must be between 230 and 50.")
+    user_weight: float = Field(..., ge=30, le=200, description="Weight must be between 30 and 200.")
+    user_activity_level: int = Field(..., ge=1, le=5, description="Level must be between 1 and 5.")
 
 class UserDataResponse(UserData):
     user_tdee_number: float

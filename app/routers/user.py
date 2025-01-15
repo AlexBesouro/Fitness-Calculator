@@ -14,6 +14,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 def find_user_by_id(user_id: int, db: Session = Depends(get_db)):
     user_query = db.query(models.User).filter(models.User.user_id == user_id)
     user_to_find = user_query.first()
+    print(user_to_find)
     if not user_to_find:
         raise HTTPException(status_code=404, detail="User not found")
 

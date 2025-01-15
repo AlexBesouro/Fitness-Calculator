@@ -38,8 +38,7 @@ def daily_total(db: Session = Depends(get_db), user_id: int = Depends(oauth2.get
         total_burned_calories = total_burned_calories_query[0]
 
     user_tdee = db.query(models.UserData.user_tdee_number).filter(models.UserData.user_id == user_id.id).scalar()
-
-    daily_result = total_eaten_calories - total_burned_calories - user_tdee
+    daily_result = user_tdee - total_eaten_calories - total_burned_calories
 
     daily_total_row = models.DailyTotal(user_id=user_id.id, total_burned_calories_number=total_burned_calories,
                                         total_eaten_calories_number=total_eaten_calories, result_tdee=daily_result)
